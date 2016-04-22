@@ -42,3 +42,24 @@ def save(request):
         finally:
             return HttpResponse("Saved")
 
+@csrf_exempt
+def run(request):
+    if request.method == "GET":
+        return Http404
+    else:
+        try:
+            token = request.POST.get('token','')
+
+
+            if token != '':
+                try:
+                    r = Code.objects.get(token=token)
+                    print "compiled successfully",r.token
+
+                except Code.DoesNotExist:
+                    print "Compilation Failed"
+        except:
+            pass
+        finally:
+            return HttpResponse("ran")
+

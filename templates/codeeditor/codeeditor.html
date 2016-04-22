@@ -32,7 +32,9 @@
 <pre id="editor">
 </pre>
 
-<button id="compile">compile</button>
+<button id="run">compile & run</button>
+<b>Program Output</b>
+<p id="output">Not run yet</p>
 
 <script src="{% static 'js/src-noconflict/ace.js' %}" type="text/javascript" charset="utf-8"></script>
 <script src="{% static 'js/src-noconflict/ext-language_tools.js' %}"></script>
@@ -73,7 +75,23 @@
         }
 
       });
-      $("#compile").on("", function() {alert("changed"); });
+
+
+      //compile button
+      $("#run").on("click", function() {
+
+            $.ajax(
+                {
+                    type: "POST",
+                    url: "/run/",
+                    data:{token: "1122"},
+                    success:function(r){
+                                $("#output").empty().append(r);
+                            }
+                }
+            );
+
+       });
     })
 
 </script>
