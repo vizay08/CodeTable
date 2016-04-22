@@ -3,11 +3,12 @@ import sys
 from django.http import request,HttpResponse,Http404
 from django.views.decorators.csrf import csrf_exempt
 from .models import Code
+import coderunner
+import codesnippets
 
 # Create your views here.
 
 def index(request):
-    print "index",request.body
     return render(request,"codeeditor.html")
 
 
@@ -45,21 +46,55 @@ def save(request):
 @csrf_exempt
 def run(request):
     if request.method == "GET":
-        return Http404
+        HttpResponse("Forbidden")
     else:
         try:
             token = request.POST.get('token','')
-
-
+            inp = request.POST.get('input','')
             if token != '':
                 try:
                     r = Code.objects.get(token=token)
-                    print "compiled successfully",r.token
+                    language = r.language
+                    code = r.code
+
+
+                    jsonopt = coderunner.run(code=code,language=language,inp=inp)
+                    opt =  jsonopt['run_status']
+                    print opt
+                    if(opt['status_detail']=="NA"):
+                        print "compiled successfully and ran successfully",r.token
+                        return HttpResponse(opt['output_html'])
+                    elif opt['status_detail']=='NZEC':
+                        return HttpResponse(opt['stderr'])
+                    else:
+                        return HttpResponse(opt['status_detail'])
+
 
                 except Code.DoesNotExist:
                     print "Compilation Failed"
-        except:
-            pass
-        finally:
-            return HttpResponse("ran")
+                    return HttpResponse("Error: Some big bloody error")
+        except Exception as e:
+            return HttpResponse("Error: Some error " + str(e))
 
+
+@csrf_exempt
+def lang_change(request):
+
+
+    if request.method == "GET":
+        HttpResponse("Forbidden")
+    else:
+        token = request.POST.get('token','')
+        language = request.POST.get('language','')
+        print language
+        if token != '' and language != '':
+            try:
+                r = Code.objects.get(token=token)
+                r.language = language
+                r.code = codesnippets.CODE_SNIPPETS[language]
+                r.save();
+                return HttpResponse(str(r.code))
+            except Code.DoesNotExist:
+                return HttpResponse(str(''))
+        else:
+            return HttpResponse(str(''))

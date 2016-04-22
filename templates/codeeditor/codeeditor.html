@@ -7,7 +7,7 @@
   <title>Editor</title>
   <style type="text/css" media="screen">
     body {
-        overflow: hidden;
+      //  overflow: hidden;
     }
     #editor {
         margin: 0;
@@ -28,14 +28,20 @@
 
 </head>
 <body>
-
+<select id="language_sel">
+    <option>C</option>
+<!--    <option>C++</option> -->
+    <option>JAVA</option>
+    <option>PYTHON</option>
+</select>
 <pre id="editor">
 </pre>
 
 <button id="run">compile & run</button>
 <b>Program Output</b>
 <p id="output">Not run yet</p>
-
+<br/><b>Input</b><br/>
+<textarea id="input" rows="10" cols="25"></textarea>
 <script src="{% static 'js/src-noconflict/ace.js' %}" type="text/javascript" charset="utf-8"></script>
 <script src="{% static 'js/src-noconflict/ext-language_tools.js' %}"></script>
 <script src="{% static 'js/jquery/jquery-2.2.3.min.js' %}"></script>
@@ -68,7 +74,7 @@
                 {
                     type:"POST",
                     url:"/save/",
-                    data:{token: "1122", code: v, language: "java"}
+                    data:{token: "1122", code: v, language: $("#language_sel").val()}
                 }
 
                 );
@@ -80,20 +86,47 @@
       //compile button
       $("#run").on("click", function() {
 
+            $("#output").html("executing...<img src=\"{% static 'images/loading_anim.gif' %}\" width=200 height=150/>");
+
             $.ajax(
                 {
                     type: "POST",
                     url: "/run/",
-                    data:{token: "1122"},
+                    data:{token: "1122",input: $("#input").val()},
+
                     success:function(r){
                                 $("#output").empty().append(r);
                             }
+
                 }
             );
 
        });
-    })
 
+
+
+    //language selector
+    $("#language_sel").on('change',function(){
+        $.ajax({
+            type: "POST",
+            url: "/lang_change/",
+            data: {token: "1122",language: $("#language_sel").val()},
+
+            success: function(r){
+
+
+
+                        if (r != ''){
+                            editor.setValue("");
+                            snippetManager.insertSnippet(editor,r);
+
+                        }
+                    }
+
+        });
+    });
+
+    });
 </script>
 
 </body>

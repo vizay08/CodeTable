@@ -130,3 +130,5 @@ STATIC_URL = '/home/vijay/Documents/webapps/CodeTable/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
+
+HE_CLIENT_SECRET_KEY = "1c56395dba90d45b50d4a1b8a26bdde2c4eadab5"
