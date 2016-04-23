@@ -21,20 +21,28 @@
     }
   </style>
 
-
-
-
-
-
 </head>
 <body>
 <select id="language_sel">
-    <option>C</option>
+    {% if language == "C" %}
+        <option selected="selected">C</option>
+    {% else %}
+        <option>C</option>
+    {% endif %}
 <!--    <option>C++</option> -->
-    <option>JAVA</option>
-    <option>PYTHON</option>
+    {% if language == "JAVA" %}
+        <option selected="selected">JAVA</option>
+    {% else %}
+        <option>JAVA</option>
+    {% endif %}
+    {% if language == "PYTHON" %}
+        <option selected="selected">PYTHON</option>
+    {% else %}
+        <option>PYTHON</option>
+    {% endif %}
 </select>
 <pre id="editor">
+    {{ code | safe }}
 </pre>
 
 <button id="run">compile & run</button>
@@ -55,10 +63,6 @@
         enableBasicAutocompletion: true
     });
 
-    var s = "";
-    s  += "import java.io.*;\n\nclass Test{\n\n}\n\n"
-
-    snippetManager.insertSnippet(editor,s);
 
 
     $(document).ready(function(){
@@ -74,7 +78,7 @@
                 {
                     type:"POST",
                     url:"/save/",
-                    data:{token: "1122", code: v, language: $("#language_sel").val()}
+                    data:{token: "{{ token }}", code: v, language: $("#language_sel").val()}
                 }
 
                 );
@@ -92,7 +96,7 @@
                 {
                     type: "POST",
                     url: "/run/",
-                    data:{token: "1122",input: $("#input").val()},
+                    data:{token: "{{ token }}",input: $("#input").val()},
 
                     success:function(r){
                                 $("#output").empty().append(r);
@@ -110,7 +114,7 @@
         $.ajax({
             type: "POST",
             url: "/lang_change/",
-            data: {token: "1122",language: $("#language_sel").val()},
+            data: {token: "{{ token }}",language: $("#language_sel").val()},
 
             success: function(r){
 

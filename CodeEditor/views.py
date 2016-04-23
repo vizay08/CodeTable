@@ -1,15 +1,48 @@
 from django.shortcuts import render
 import sys
 from django.http import request,HttpResponse,Http404
+from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
 from .models import Code
 import coderunner
 import codesnippets
+import tokengenerator
 
 # Create your views here.
 
 def index(request):
-    return render(request,"codeeditor.html")
+
+    token_unique = False
+    token = ""
+    while not token_unique:
+        token = tokengenerator.generate_token(6)
+
+        try:
+            r = Code.objects.get(token=token)
+        except Code.DoesNotExist:
+            token_unique = True
+
+    #got unique token insert into db
+    r = Code(token=token,language="JAVA",code=codesnippets.CODE_SNIPPETS['JAVA'],shared_code='')
+    r.save()
+
+    return redirect("/"+token+"/")
+
+def serve_token_url(request,token):
+    try:
+        c = Code.objects.get(token=token)
+        language  = c.language
+        code = c.code
+
+        context = {
+            'token' :token,
+            'language':language,
+            'code':code
+        }
+        return render(request,"codeeditor.html",context=context)
+
+    except Code.DoesNotExist:
+        return render(request,"error.html")
 
 
 
@@ -37,7 +70,6 @@ def save(request):
 
                     r = Code(token=token,language=language,code=code,shared_code='')
                     r.save()
-                    print "save",opt
         except:
             pass
         finally:
@@ -79,14 +111,12 @@ def run(request):
 
 @csrf_exempt
 def lang_change(request):
-
-
     if request.method == "GET":
         HttpResponse("Forbidden")
     else:
         token = request.POST.get('token','')
         language = request.POST.get('language','')
-        print language
+
         if token != '' and language != '':
             try:
                 r = Code.objects.get(token=token)
