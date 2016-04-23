@@ -47,6 +47,7 @@
 </pre>
 <div style="width:100%">
     <div style="float:left;width:50%">
+        <br/>
         <button id="run">compile & run</button>
     </div>
     {% if is_writable %}
@@ -145,7 +146,7 @@
                 {
                     type: "POST",
                     url: "/run/",
-                    data:{token: "{{ token }}",input: $("#input:").val()},
+                    data:{token: "{{ token }}",input: $("#input").val()},
 
                     success:function(r){
                                 $("#output").empty().append(r);
@@ -171,7 +172,7 @@
                 else
                     r += "Read-Write url";
 
-                var new_url = '<a src=\"'+opt+'\">'+opt+'</a>';
+                var new_url = '<a href=\"'+opt+'\">'+opt+'</a>';
 
                 $("#sforshare").html(r+"<br/>"+new_url);
 
