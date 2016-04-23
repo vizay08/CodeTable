@@ -23,6 +23,7 @@
 
 </head>
 <body>
+
 <select id="language_sel">
     {% if language == "C" %}
         <option selected="selected">C</option>
@@ -44,12 +45,36 @@
 <pre id="editor">
     {{ code | safe }}
 </pre>
+<div style="width:100%">
+    <div style="float:left;width:50%">
+        <button id="run">compile & run</button>
+    </div>
+    {% if is_writable %}
+    <div style="float:right;width:50%">
+        <b>Share Code</b><br/>
+        <button id="share">Share</button><br/>
+        <b>Options</b>
 
-<button id="run">compile & run</button>
-<b>Program Output</b>
-<p id="output">Not run yet</p>
-<br/><b>Input</b><br/>
-<textarea id="input" rows="10" cols="25"></textarea>
+            <input type="radio"  name="share_options" value="Read" checked="checked">Read<br/>
+            <input type="radio" name="share_options" value="Write">Read and Write<br/>
+
+        <br/>
+        <div id="sforshare"></div>
+
+    </div>
+    {% endif %}
+</div>
+<br/>
+<div style="width:100%">
+    <div style="float:left;width:50%">
+        <b>Input</b><br/>
+        <textarea id="input" rows="10" cols="25"></textarea>
+    </div>
+    <div style="float:right;width:50%">
+        <b>Program Output</b><br/>
+        <p id="output">Not run yet</p>
+    </div>
+</div>
 <script src="{% static 'js/src-noconflict/ace.js' %}" type="text/javascript" charset="utf-8"></script>
 <script src="{% static 'js/src-noconflict/ext-language_tools.js' %}"></script>
 <script src="{% static 'js/jquery/jquery-2.2.3.min.js' %}"></script>
@@ -62,11 +87,14 @@
     editor.setOptions({
         enableBasicAutocompletion: true
     });
-
+     {% if not is_writable %}
+            editor.setReadOnly(true);
+     {% endif%}
 
 
     $(document).ready(function(){
 
+     {%  if is_writable %}
       $("#editor").on("keyup", function(e) {
 
         var keyCode = e.keyCode;
@@ -87,27 +115,6 @@
       });
 
 
-      //compile button
-      $("#run").on("click", function() {
-
-            $("#output").html("executing...<img src=\"{% static 'images/loading_anim.gif' %}\" width=200 height=150/>");
-
-            $.ajax(
-                {
-                    type: "POST",
-                    url: "/run/",
-                    data:{token: "{{ token }}",input: $("#input").val()},
-
-                    success:function(r){
-                                $("#output").empty().append(r);
-                            }
-
-                }
-            );
-
-       });
-
-
 
     //language selector
     $("#language_sel").on('change',function(){
@@ -118,14 +125,58 @@
 
             success: function(r){
 
-
-
                         if (r != ''){
                             editor.setValue("");
                             snippetManager.insertSnippet(editor,r);
 
                         }
                     }
+
+        });
+    });
+
+{% endif %}
+      //compile button
+      $("#run").on("click", function() {
+
+            $("#output").html("executing...<img src=\"{% static 'images/loading_anim.gif' %}\" width=200 height=150/>");
+
+            $.ajax(
+                {
+                    type: "POST",
+                    url: "/run/",
+                    data:{token: "{{ token }}",input: $("#input:").val()},
+
+                    success:function(r){
+                                $("#output").empty().append(r);
+                            }
+                }
+            );
+
+       });
+
+
+
+
+    $("#share").on("click",function(){
+        share_option = $("input:radio[name=share_options]:checked").val();
+        $.ajax({
+            type: "POST",
+            url: "/sforshare/",
+            data: {token: "{{ token }}",can_write: share_option},
+            success: function(opt){
+                var r = "";
+                if(share_option == "Read")
+                    r += "Read only url";
+                else
+                    r += "Read-Write url";
+
+                var new_url = '<a src=\"'+opt+'\">'+opt+'</a>';
+
+                $("#sforshare").html(r+"<br/>"+new_url);
+
+                }
+
 
         });
     });

@@ -9,9 +9,7 @@ import codesnippets
 import tokengenerator
 
 # Create your views here.
-
-def index(request):
-
+def generate_unique_token():
     token_unique = False
     token = ""
     while not token_unique:
@@ -21,9 +19,14 @@ def index(request):
             r = Code.objects.get(token=token)
         except Code.DoesNotExist:
             token_unique = True
+    return token
+
+def index(request):
+
+    token = generate_unique_token()
 
     #got unique token insert into db
-    r = Code(token=token,language="JAVA",code=codesnippets.CODE_SNIPPETS['JAVA'],shared_code='')
+    r = Code(token=token,language="JAVA",code=codesnippets.CODE_SNIPPETS['JAVA'])
     r.save()
 
     return redirect("/"+token+"/")
@@ -33,11 +36,13 @@ def serve_token_url(request,token):
         c = Code.objects.get(token=token)
         language  = c.language
         code = c.code
+        is_writable = c.is_writable
 
         context = {
             'token' :token,
             'language':language,
-            'code':code
+            'code':code,
+            'is_writable': is_writable
         }
         return render(request,"codeeditor.html",context=context)
 
@@ -68,7 +73,7 @@ def save(request):
                     r.save()
                 except Code.DoesNotExist:
 
-                    r = Code(token=token,language=language,code=code,shared_code='')
+                    r = Code(token=token,language=language,code=code)
                     r.save()
         except:
             pass
@@ -83,6 +88,7 @@ def run(request):
         try:
             token = request.POST.get('token','')
             inp = request.POST.get('input','')
+
             if token != '':
                 try:
                     r = Code.objects.get(token=token)
@@ -100,10 +106,7 @@ def run(request):
                         return HttpResponse(opt['stderr'])
                     else:
                         return HttpResponse(opt['status_detail'])
-
-
                 except Code.DoesNotExist:
-                    print "Compilation Failed"
                     return HttpResponse("Error: Some big bloody error")
         except Exception as e:
             return HttpResponse("Error: Some error " + str(e))
@@ -124,6 +127,38 @@ def lang_change(request):
                 r.code = codesnippets.CODE_SNIPPETS[language]
                 r.save();
                 return HttpResponse(str(r.code))
+            except Code.DoesNotExist:
+                return HttpResponse(str(''))
+        else:
+            return HttpResponse(str(''))
+
+@csrf_exempt
+def generate_share_url(request):
+    if request.method == "GET":
+        HttpResponse("Forbidden")
+    else:
+        token = request.POST.get('token','')
+        can_write = request.POST.get('can_write','')
+
+        if token != '' and can_write != '':
+            try:
+                url  = "http://127.0.0.1:8000/"
+                r = Code.objects.get(token=token)
+
+                print can_write
+
+                if(can_write == "Write"):
+
+                    new_token = generate_unique_token()
+                    nr = Code(token=new_token,language=r.language,code=r.code,is_writable=True)
+                    nr.save()
+                    return HttpResponse(url+new_token)
+                else:
+
+                    new_token = generate_unique_token()
+                    nr = Code(token=new_token,language=r.language,code=r.code,is_writable=False)
+                    nr.save()
+                    return HttpResponse(url+new_token)
             except Code.DoesNotExist:
                 return HttpResponse(str(''))
         else:
