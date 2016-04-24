@@ -60,7 +60,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            '/home/vijay/Documents/webapps/CodeTable/templates/codeeditor/'
+            BASE_DIR+'/templates/codeeditor/'
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -124,7 +124,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
-STATIC_URL = '/home/vijay/Documents/webapps/CodeTable/static/'
+STATIC_URL = BASE_DIR+'/static/'
 
 
 STATICFILES_DIRS = [
