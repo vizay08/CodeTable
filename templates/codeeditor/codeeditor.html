@@ -166,6 +166,7 @@
             url: "/sforshare/",
             data: {token: "{{ token }}",can_write: share_option},
             success: function(opt){
+                console.log(opt)
                 var r = "";
                 if(share_option == "Read")
                     r += "Read only url";

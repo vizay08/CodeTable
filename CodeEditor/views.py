@@ -3,6 +3,7 @@ import sys
 from django.http import request,HttpResponse,Http404
 from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
+from urlparse import urlparse
 from .models import Code
 import coderunner
 import codesnippets
@@ -33,6 +34,7 @@ def index(request):
 
 def serve_token_url(request,token):
     try:
+        print "port is",request.get_port()
         c = Code.objects.get(token=token)
         language  = c.language
         code = c.code
@@ -142,7 +144,10 @@ def generate_share_url(request):
 
         if token != '' and can_write != '':
             try:
-                url  = "http://127.0.0.1:8000/"
+                u = request.get_raw_uri()
+                urlp = urlparse(u)
+                url  = urlp.scheme+'://'+urlp.netloc+'/'  #"http://127.0.0.1:8001/"
+
                 r = Code.objects.get(token=token)
 
                 print can_write
@@ -152,12 +157,14 @@ def generate_share_url(request):
                     new_token = generate_unique_token()
                     nr = Code(token=new_token,language=r.language,code=r.code,is_writable=True)
                     nr.save()
+                    print "shared url is ",url
                     return HttpResponse(url+new_token)
                 else:
 
                     new_token = generate_unique_token()
                     nr = Code(token=new_token,language=r.language,code=r.code,is_writable=False)
                     nr.save()
+                    print "shared url is ",url
                     return HttpResponse(url+new_token)
             except Code.DoesNotExist:
                 return HttpResponse(str(''))
