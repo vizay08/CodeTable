@@ -2,6 +2,10 @@ L = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 
 
 import random
 
+'''
+    generates random token
+'''
+
 def generate_token(num_of_digits):
     if num_of_digits <= 0:
         return ""

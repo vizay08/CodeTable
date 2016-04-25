@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Editor</title>
   <style type="text/css" media="screen">
     body {
@@ -20,61 +21,84 @@
 	height: 90vh;
     }
   </style>
-
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css'%}">
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap-theme.min.css'%}">
 </head>
 <body>
+    <nav class="navbar  navbar-inverse">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a style="text-align:center" class="navbar-brand" href="#">OnlineIDE</a>
+    </div>
 
-<select id="language_sel">
-    {% if language == "C" %}
-        <option selected="selected">C</option>
-    {% else %}
-        <option>C</option>
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        {% if is_writable %}
+        <div style='text-align:center' class="nav navbar-nav navbar-right form-group">
+            <label for="share" style="color:#FFFFFF">Share Code</label><br>
+            <button id="share">Share</button>
+            <br>
+            <br>
+            <label for="radio" style="color:#FFFFFF">Options</label><br>
+            <div id="radio" style="color:#FFFFFF">
+            <input type="radio"  name="share_options" value="Read" checked="checked">Read<br/>
+            <input type="radio" name="share_options" value="Write">Read and Write<br/>
+            </div>
+            <label id="sforshare"></label>
+        </div>
+    </div>
     {% endif %}
+
+      <div class="nav navbar-nav navbar-right form-group">
+           <label for="language_sel" style="text-align:center;color:#FFFFFF">Language:</label>
+          <select class="form-control" id="language_sel">
+             {% if language == "C" %}
+              <option selected="selected">C</option>
+              {% else %}
+                <option>C</option>
+                 {% endif %}
 <!--    <option>C++</option> -->
-    {% if language == "JAVA" %}
-        <option selected="selected">JAVA</option>
-    {% else %}
-        <option>JAVA</option>
-    {% endif %}
-    {% if language == "PYTHON" %}
-        <option selected="selected">PYTHON</option>
-    {% else %}
-        <option>PYTHON</option>
-    {% endif %}
-</select>
+              {% if language == "JAVA" %}
+               <option selected="selected">JAVA</option>
+             {% else %}
+                 <option>JAVA</option>
+             {% endif %}
+                {% if language == "PYTHON" %}
+              <option selected="selected">PYTHON</option>
+            {% else %}
+                <option>PYTHON</option>
+                {% endif %}
+            </select>
+
+      </div>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
 <pre id="editor">
     {{ code | safe }}
 </pre>
-<div style="width:100%">
-    <div style="float:left;width:50%">
+<div class="row">
+    <div style="text-align:center" class="col-sm-12 col-md-12 col-lg-12">
         <br/>
-        <button id="run">compile & run</button>
+            <button id="run" >compile & run</button><br>
+            <label for="input">Input:</label>
+            <textarea class="form-control" id="input" rows="10"></textarea>
     </div>
-    {% if is_writable %}
-    <div style="float:right;width:50%">
-        <b>Share Code</b><br/>
-        <button id="share">Share</button><br/>
-        <b>Options</b>
 
-            <input type="radio"  name="share_options" value="Read" checked="checked">Read<br/>
-            <input type="radio" name="share_options" value="Write">Read and Write<br/>
-
-        <br/>
-        <div id="sforshare"></div>
-
-    </div>
-    {% endif %}
 </div>
-<br/>
-<div style="width:100%">
-    <div style="float:left;width:50%">
-        <b>Input</b><br/>
-        <textarea id="input" rows="10" cols="25"></textarea>
-    </div>
-    <div style="float:right;width:50%">
-        <b>Program Output</b><br/>
-        <p id="output">Not run yet</p>
-    </div>
+<div class="row" style="text-align:center">
+           <label >Program Output</label><br/>
+            <label id="output">Not run yet</label>
+</div>
+
 </div>
 <script src="{% static 'js/src-noconflict/ace.js' %}" type="text/javascript" charset="utf-8"></script>
 <script src="{% static 'js/src-noconflict/ext-language_tools.js' %}"></script>
@@ -185,7 +209,7 @@
 
     });
 </script>
-
+<script src="{% static  'bootstrap/js/bootstrap.min.js' %}"></script>
 </body>
 
 </html>
